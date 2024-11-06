@@ -18,7 +18,7 @@ model User {
   fullName      String
   email         String @unique
   isVerified    Boolean @default(false)
-  socialLinks   Json?
+  socialLinks   Socials[] 
   organisation Organisation[]
 }
 
@@ -39,4 +39,9 @@ model Workspace {
   name            String
   organisationId  String @db.ObjectId
   organisation    Organisation @relation(fields: [organisationId],references: [id])
+}
+
+type Socials{
+  name String
+  link String
 }

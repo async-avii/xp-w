@@ -30,6 +30,22 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    const response = ApiResponse("sucess", 200, user.id);
+    return response;
+  } catch (error) {
+    console.error(error.message);
+    res.json(errorHandler(true, 200, user.id));
+  }
+});
+
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

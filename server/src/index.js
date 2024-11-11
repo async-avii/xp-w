@@ -46,17 +46,34 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/:id/workspace/create", async (req, res) => {
+app.post("/create-organisation/:id", async (req, res) => {
   const { id } = req.params;
+  const { name, description, logoUrl } = req.body;
   try {
     const check = await prisma.user.findUnique({
       where: {
         id: id,
+        isVerified: true,
       },
     });
     if (check) {
-      const response = ApiResponse("sucess", 200, check.id);
-      res.json(response);
+      const newOrganisation = await prisma.organisation.create({
+        data: {
+          name,
+          description,
+          logoUrl,
+          user: {
+            connect: {
+              id: id,
+            },
+          },
+        },
+      });
+
+      res.json({
+        flag: true,
+        data: newOrganisation.id,
+      });
     } else {
       res.json({
         flag: false,

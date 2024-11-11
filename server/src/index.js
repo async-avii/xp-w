@@ -46,6 +46,31 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/:id/workspace/create", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const check = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (check) {
+      const response = ApiResponse("sucess", 200, check.id);
+      res.json(response);
+    } else {
+      res.json({
+        flag: false,
+        error: "User is not verified",
+      });
+    }
+  } catch (error) {
+    res.json({
+      status: 500,
+      flag: false,
+    });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

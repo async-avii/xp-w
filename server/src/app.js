@@ -1,6 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 const app = express();
 const prisma = new PrismaClient();
 
@@ -17,10 +18,6 @@ app.use("/organisations", organisationRouter);
 app.get("/", (req, res) => {
   res.cookie("token", "test");
   res.send("Hello World!");
-});
-app.get("/get-cookie", (req, res) => {
-  console.log(req.cookies);
-  res.send(req.cookies);
 });
 
 export { prisma };

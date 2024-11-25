@@ -1,9 +1,10 @@
 import { prisma } from "../app.js";
+import jwt from "jsonwebtoken";
 
 export const createOrganisation = async (req, res) => {
-  const id = req.params.id;
+  const id = req.id;
   try {
-    const reqUser = await prisma.user.findUnique({
+    const reqUser = await prisma.user.findFirst({
       where: {
         id,
       },
@@ -43,7 +44,13 @@ export const createOrganisation = async (req, res) => {
   } catch (error) {
     res.json({
       status: false,
-      msg: "Organisation not created",
+      msg: error.message,
     });
   }
+};
+
+export const createLink = async (req, res) => {
+  const id = req.params.id;
+  const secretId = jwt.sign(id, process.env.JWT_SECRET);
+  res.send(secretId);
 };

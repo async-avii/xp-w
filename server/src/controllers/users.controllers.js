@@ -73,31 +73,3 @@ export const loginUser = async (req, res) => {
     });
   }
 };
-
-export const verifyUser = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const user = await prisma.user.update({
-      where: {
-        id,
-      },
-      data: {
-        isVerified: true,
-      },
-      select: {
-        id: true,
-        isVerified: true,
-      },
-    });
-    const token = jwt.sign(user, process.env.JWT_SECRET);
-    res.cookie("token", token, { httpOnly: true });
-    const resp = new ApiResponse("sucess", 200, user.id, true);
-    return res.json(resp);
-  } catch (error) {
-    console.error(error.message);
-    res.json({
-      status: 500,
-      message: error.message,
-    });
-  }
-};

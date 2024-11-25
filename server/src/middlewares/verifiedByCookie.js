@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-export default async function verifiedByCookie(req, res, next) {
+export default function verifiedByCookie(req, res, next) {
   const token = req.token;
   const payload = jwt.verify(token, process.env.JWT_SECRET);
   if (payload.isVerified === true) next();

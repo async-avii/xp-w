@@ -24,14 +24,16 @@ export const signUpUser = async (req, res) => {
       userIsVerified: user.isVerified,
     };
     const response = new ApiResponse("sucess", 200, user.id);
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "30d" });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
     res.cookie("token", token, { httpOnly: true });
     return res.json(response);
   } catch (error) {
     console.error(error.message);
     res.json({
       status: 500,
-      message: "Internal error occured",
+      message: error.message,
     });
   }
 };
@@ -39,7 +41,7 @@ export const signUpUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const fetchUser = await prisma.user.findUnique({
+    const fetchUser = await prisma.user.findFirst({
       where: {
         email,
       },
@@ -52,7 +54,9 @@ export const loginUser = async (req, res) => {
         userIsVerified: fetchUser.isVerified,
       };
       const response = new ApiResponse("sucess", 200, fetchUser.id);
-      jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "30d" });
+      let token = jwt.sign(payload, process.env.JWT_SECRET, {
+        expiresIn: "30d",
+      });
       res.cookie("token", token, { httpOnly: true });
       return res.json(response);
     } else {
@@ -66,6 +70,34 @@ export const loginUser = async (req, res) => {
     res.json({
       status: 500,
       message: "Internal error occured",
+    });
+  }
+};
+
+export const verifyUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        isVerified: true,
+      },
+      select: {
+        id: true,
+        isVerified: true,
+      },
+    });
+    const token = jwt.sign(user, process.env.JWT_SECRET);
+    res.cookie("token", token, { httpOnly: true });
+    const resp = new ApiResponse("sucess", 200, user.id, true);
+    return res.json(resp);
+  } catch (error) {
+    console.error(error.message);
+    res.json({
+      status: 500,
+      message: error.message,
     });
   }
 };

@@ -13,7 +13,7 @@ import userRouter from "./routes/user.router.js";
 import organisationRouter from "./routes/organisation.router.js";
 
 app.use("/user", userRouter);
-app.use("/organisations", organisationRouter);
+app.use("/organisation", organisationRouter);
 
 app.get("/", (req, res) => {
   res.cookie("token", "test");

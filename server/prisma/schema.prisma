@@ -20,7 +20,8 @@ model User {
   password      String
   isVerified    Boolean @default(false)
   socialLinks   Socials[] 
-  organisation Organisation[]
+  organisations Organisation?
+  memberId Member?
 }
 
 model Organisation {
@@ -29,10 +30,11 @@ model Organisation {
   description String
   logoUrl     String 
   workspaces  Workspace[]
+  createdById String @db.ObjectId @unique
   user User @relation(references: [id], fields: [createdById])
-  createdById String @db.ObjectId
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 }
 
 model Workspace {
@@ -40,7 +42,22 @@ model Workspace {
   name            String
   organisationId  String @db.ObjectId
   organisation    Organisation @relation(fields: [organisationId],references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
 }
+
+model Member{
+  id String @db.ObjectId @id @default(auto()) @map("_id")
+  role String @default("USER")
+  userId String @db.ObjectId @unique
+  user User @relation(fields: [userId], references: [id])
+  organisatonID String @db.ObjectId
+  organisaton Organisation @relation(fields: [organisatonID], references: [id])
+  
+}
+
+
 
 type Socials{
   name String

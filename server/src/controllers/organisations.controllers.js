@@ -1,43 +1,41 @@
 import { prisma } from "../app.js";
 import jwt from "jsonwebtoken";
 import ApiResponse from "../utils/ApiResponse.js";
+import ErrorResponse from "../utils/ErrorResponse.js";
 
 export const createOrganisation = async (req, res) => {
   const { name, description, logoUrl } = req.body;
   try {
-    const checkStatus = await prisma.user.findFirst({
-      where: {
-        id: req.id,
-      },
-      select: {
-        organisation: true,
-      },
-    });
-
-    if (checkStatus.organisation.length == 1) {
-      const newOrg = await prisma.organisation.create({
-        data: {
-          name,
-          description,
-          logoUrl,
-          user: {
-            connect: {
-              id: req.id,
-            },
+    const newOrg = await prisma.organisation.create({
+      data: {
+        name,
+        description,
+        logoUrl,
+        user: {
+          connect: {
+            id: req.id,
           },
         },
-      });
-      const response = new ApiResponse("sucess", 200, newOrg.id, true);
-      res.json(response);
-    } else {
-      res.json({
-        status: 403,
-        message: "You already have an organisation",
-      });
-    }
+      },
+    });
+    const response = new ApiResponse("sucess", 200, newOrg.id, true);
+    res.json(response);
   } catch (error) {
-    console.log(error);
-    res.json(error);
+    if (error.code === "P2014") {
+      const errorResponse = new ErrorResponse(
+        403,
+        error.code,
+        "Organisation already exists"
+      );
+      res.json(errorResponse);
+    } else {
+      const errorResponse = new ErrorResponse(
+        403,
+        error.code,
+        "Internal Server Error"
+      );
+      res.json(errorResponse);
+    }
   }
 };
 
@@ -47,4 +45,28 @@ export const createLink = async (req, res) => {
   res.send(secretId);
 };
 
-export const joinOrganisation = async (req, res) => {};
+export const joinOrganisation = async (req, res) => {
+  const id = req.params.id;
+  const userId = req.id;
+  const decoded = jwt.decode(id);
+  try {
+    const newMember = await prisma.member.create({
+      data: {
+        organisation: {
+          connect: {
+            id: decoded,
+          },
+        },
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+    return res.json(newMember);
+  } catch (error) {
+    console.log(error);
+    res.json(error);
+  }
+};

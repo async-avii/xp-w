@@ -15,8 +15,7 @@ import organisationRouter from "./routes/organisation.router.js";
 app.use("/user", userRouter);
 app.use("/organisation", organisationRouter);
 
-app.get("/", (req, res) => {
-  res.cookie("token", "test");
+app.get("/", async (req, res) => {
   res.send("Hello World!");
 });
 

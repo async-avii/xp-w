@@ -20,7 +20,7 @@ model User {
   password      String
   isVerified    Boolean @default(false)
   socialLinks   Socials[] 
-  organisations Organisation?
+  organisationCreated Organisation?
   memberId Member?
 }
 
@@ -35,6 +35,7 @@ model Organisation {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
+  members Member[]
 }
 
 model Workspace {
@@ -52,12 +53,9 @@ model Member{
   role String @default("USER")
   userId String @db.ObjectId @unique
   user User @relation(fields: [userId], references: [id])
-  organisatonID String @db.ObjectId
-  organisaton Organisation @relation(fields: [organisatonID], references: [id])
-  
+  organisationId String @db.ObjectId
+  organisation Organisation @relation(fields: [organisationId], references: [id])
 }
-
-
 
 type Socials{
   name String

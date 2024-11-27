@@ -43,6 +43,7 @@ model Workspace {
   name            String
   organisationId  String @db.ObjectId
   organisation    Organisation @relation(fields: [organisationId],references: [id])
+  // tasks Task[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   deletedAt DateTime?
@@ -57,7 +58,33 @@ model Member{
   organisation Organisation @relation(fields: [organisationId], references: [id])
 }
 
+// model Task{
+//   id String @db.ObjectId @id @default(auto()) @map("_id")
+//   title String
+//   description String
+//   category TaskType
+//   type String
+//   etc DateTime
+//   status Int @default(-2)
+//   workspaceId String @db.ObjectId
+//   workspace Workspace @relation(fields: [workspaceId], references: [id])
+//   assignedBy String @db.ObjectId 
+//   assignedByMember Member @relation("CreatedTasks",fields: [assignedBy], references: [id])
+//   assignedTo String @db.ObjectId
+//   assignedToMember Member @relation("AssignedTasks",fields: [assignedTo], references: [id])
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @default(now())
+//   deletedAt DateTime?
+// }
+
+
 type Socials{
   name String
   link String
+}
+enum TaskType {
+  Bug
+  Feature
+  Task
+  Improvement
 }

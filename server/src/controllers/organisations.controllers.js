@@ -1,51 +1,43 @@
 import { prisma } from "../app.js";
 import jwt from "jsonwebtoken";
+import ApiResponse from "../utils/ApiResponse.js";
 
 export const createOrganisation = async (req, res) => {
-  const id = req.id;
+  const { name, description, logoUrl } = req.body;
   try {
-    const reqUser = await prisma.user.findFirst({
+    const checkStatus = await prisma.user.findFirst({
       where: {
-        id,
+        id: req.id,
       },
       select: {
-        _count: {
-          select: {
-            organisation: true,
-          },
-        },
+        organisation: true,
       },
     });
 
-    if (reqUser._count.organisation < 3) {
-      const org = await prisma.organisation.create({
+    if (checkStatus.organisation.length == 1) {
+      const newOrg = await prisma.organisation.create({
         data: {
-          name: req.body.name,
-          description: req.body.description,
-          logoUrl: req.body.logoUrl,
+          name,
+          description,
+          logoUrl,
           user: {
             connect: {
-              id,
+              id: req.id,
             },
           },
         },
       });
-      res.json({
-        status: true,
-        msg: "Organisation created",
-        data: org.id,
-      });
+      const response = new ApiResponse("sucess", 200, newOrg.id, true);
+      res.json(response);
     } else {
       res.json({
-        status: false,
-        msg: "Organisation limit reached",
+        status: 403,
+        message: "You already have an organisation",
       });
     }
   } catch (error) {
-    res.json({
-      status: false,
-      msg: error.message,
-    });
+    console.log(error);
+    res.json(error);
   }
 };
 
@@ -54,3 +46,5 @@ export const createLink = async (req, res) => {
   const secretId = jwt.sign(id, process.env.JWT_SECRET);
   res.send(secretId);
 };
+
+export const joinOrganisation = async (req, res) => {};

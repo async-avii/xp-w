@@ -5,10 +5,10 @@ export default function verifiedByCookie(req, res, next) {
   if (payload.userIsVerified === true) {
     req.id = payload.userId;
     next();
-  } else {
+  } else if (payload.userIsVerified === false) {
     res.json({
       status: 403,
-      success: payload.isVerified,
+      success: "Not Verified",
     });
   }
 }

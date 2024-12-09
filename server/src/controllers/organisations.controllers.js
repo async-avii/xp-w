@@ -35,8 +35,27 @@ export const createOrganisation = async (req, res) => {
         },
       },
     });
-    const response = new ApiResponse("sucess", 200, newOrg.id, true);
-    res.json(response);
+
+    await prisma.member.create({
+      data: {
+        organisation: {
+          connect: {
+            id: newOrg.id,
+          },
+        },
+        user: {
+          connect: {
+            id: req.id,
+          },
+        },
+        role: "CREATOR",
+      },
+    });
+    res.json({
+      status: "success",
+      code: 200,
+      message: newOrg.id,
+    });
   } catch (error) {
     if (error.code === "P2014") {
       const errorResponse = new ErrorResponse(

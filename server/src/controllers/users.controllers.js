@@ -73,3 +73,55 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+export const getUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        fullName: true,
+        email: true,
+        socialLinks: true,
+        organisationCreated: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            logoUrl: true,
+          },
+        },
+        memberId: {
+          select: {
+            organisationId: true,
+            role: true,
+          },
+        },
+      },
+    });
+    const response = new ApiResponse("sucess", 200, user, true);
+    return res.json(response);
+  } catch (error) {
+    console.log(error);
+    res.json(error);
+  }
+};
+
+export const verifyUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        isVerified: true,
+      },
+    });
+    res.json({ status: "success", code: 200, message: "User verified" });
+  } catch (error) {
+    res.json(error);
+  }
+};
